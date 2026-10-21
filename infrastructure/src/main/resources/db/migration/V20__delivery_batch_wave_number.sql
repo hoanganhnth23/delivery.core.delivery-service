@@ -1,0 +1,2 @@
+ALTER TABLE delivery_batches
+    ADD COLUMN IF NOT EXISTS wave_number INTEGER NOT NULL DEFAULT 0;

@@ -1,0 +1,16 @@
+com/delivery/delivery/domain/DeliveryAccessPolicyTest.class
+com/delivery/delivery/domain/BatchProgressPolicyTest$1.class
+com/delivery/delivery/domain/DeliveryReadPolicyTest.class
+com/delivery/delivery/domain/DeliveryLifecycleTest.class
+com/delivery/delivery/domain/BatchDecisionPolicyTest.class
+com/delivery/delivery/domain/DeliveryBatchItemTest.class
+com/delivery/delivery/domain/DeliveryDomainCoverageTest.class
+com/delivery/delivery/domain/BatchRoutePolicyTest.class
+com/delivery/delivery/domain/ProofOfDeliveryPolicyTest.class
+com/delivery/delivery/domain/DeliveryCreationPolicyTest.class
+com/delivery/delivery/domain/CancellationPolicyTest.class
+com/delivery/delivery/domain/DeliveryExceptionPolicyTest.class
+com/delivery/delivery/domain/OfferPersistencePolicyTest.class
+com/delivery/delivery/domain/BatchProgressPolicyTest.class
+com/delivery/delivery/domain/ShipperProgressPolicyTest.class
+com/delivery/delivery/domain/OfferDecisionPolicyTest.class

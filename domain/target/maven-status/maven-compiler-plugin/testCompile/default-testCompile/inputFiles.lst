@@ -1,0 +1,15 @@
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/BatchDecisionPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/BatchProgressPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/BatchRoutePolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/CancellationPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryAccessPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryBatchItemTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryCreationPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryDomainCoverageTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryExceptionPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryLifecycleTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/DeliveryReadPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/OfferDecisionPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/OfferPersistencePolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/ProofOfDeliveryPolicyTest.java
+/Users/a/Documents/private/delivery/backend_delivery/delivery/domain/src/test/java/com/delivery/delivery/domain/ShipperProgressPolicyTest.java

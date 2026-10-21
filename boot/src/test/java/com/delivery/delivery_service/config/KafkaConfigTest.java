@@ -1,0 +1,64 @@
+package com.delivery.delivery_service.config;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.junit.jupiter.api.Test;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+
+import java.util.concurrent.CompletableFuture;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.ArgumentCaptor;
+
+class KafkaConfigTest {
+
+    @Test
+    void usesConfiguredBootstrapServersForProducerAndConsumer() {
+        KafkaConfig config = new KafkaConfig("kafka:19092");
+
+        assertThat(config.producerFactory().getConfigurationProperties())
+                .containsEntry(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:19092");
+        assertThat(config.consumerFactory().getConfigurationProperties())
+                .containsEntry(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:19092");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void poisonCommandIsPublishedToSamePartitionDeadLetterTopic() {
+        KafkaConfig config = new KafkaConfig("kafka:19092");
+        KafkaTemplate<String, String> template = mock(KafkaTemplate.class);
+        when(template.send(any(ProducerRecord.class)))
+                .thenReturn(CompletableFuture.completedFuture(mock(SendResult.class)));
+        var recoverer = config.deliveryDeadLetterRecoverer(template);
+        ConsumerRecord<String, String> source = new ConsumerRecord<>(
+                "saga.command.create-delivery", 2, 9L, "order-101", "bad-json");
+
+        recoverer.accept(source, new IllegalArgumentException("poison"));
+
+        ArgumentCaptor<ProducerRecord<String, String>> sent =
+                ArgumentCaptor.forClass(ProducerRecord.class);
+        verify(template).send(sent.capture());
+        assertThat(sent.getValue().topic()).isEqualTo("saga.command.create-delivery.DLT");
+        assertThat(sent.getValue().partition()).isEqualTo(2);
+        assertThat(sent.getValue().key()).isEqualTo("order-101");
+        assertThat(sent.getValue().value()).isEqualTo("bad-json");
+    }
+
+    @Test
+    void errorHandlerCommitsOnlyAfterFiniteRetryRecovery() {
+        KafkaConfig config = new KafkaConfig("kafka:19092");
+        var recoverer = config.deliveryDeadLetterRecoverer(mock(KafkaTemplate.class));
+        var handler = config.deliveryKafkaErrorHandler(recoverer,
+                mock(com.delivery.delivery_service.metrics.BusinessMetrics.class));
+
+        assertThat(handler.isAckAfterHandle()).isTrue();
+        assertThat(handler.seeksAfterHandling()).isTrue();
+    }
+}
