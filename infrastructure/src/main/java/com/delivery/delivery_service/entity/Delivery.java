@@ -44,6 +44,10 @@ public class Delivery {
     @Column(name = "offer_expires_at")
     private LocalDateTime offerExpiresAt;
 
+    /** Order is cancelling this delivery: pickup is refused until this instant. */
+    @Column(name = "cancel_hold_until")
+    private LocalDateTime cancelHoldUntil;
+
     @Column(name = "offered_matching_session_id", length = 36)
     private String offeredMatchingSessionId;
 

@@ -1,5 +1,6 @@
 package com.delivery.delivery.domain;
 
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -62,6 +63,27 @@ public final class CancellationPolicy {
         if (status == DeliveryStatus.CANCELLED) return OrderCancel.ALREADY_CANCELLED;
         if (ORDER_CANCELLABLE.contains(status)) return OrderCancel.CANCEL;
         throw new OfferDecisionRejected(INVALID_STATUS, "Cannot cancel delivery " + deliveryId + " in status " + status);
+    }
+
+    /**
+     * Order asks before it cancels, because its copy of the delivery status can lag
+     * behind a pickup. HOLD keeps the delivery cancellable (pickup refused) until
+     * order.cancelled arrives through the usual event path or the hold expires.
+     */
+    public enum CancelRequest { NO_DELIVERY, ALREADY_CANCELLED, HOLD }
+
+    public static CancelRequest onOrderCancelRequest(boolean deliveryExists, DeliveryStatus status) {
+        if (!deliveryExists) return CancelRequest.NO_DELIVERY;
+        if (status == DeliveryStatus.CANCELLED) return CancelRequest.ALREADY_CANCELLED;
+        if (ORDER_CANCELLABLE.contains(status)) return CancelRequest.HOLD;
+        throw new OfferDecisionRejected(INVALID_STATUS,
+                "Shipper đã lấy hàng, không thể huỷ đơn. Trạng thái giao hàng: " + status);
+    }
+
+    public static void requirePickupNotHeldForCancel(LocalDateTime cancelHoldUntil, LocalDateTime now) {
+        if (cancelHoldUntil != null && now.isBefore(cancelHoldUntil)) {
+            throw new OfferDecisionRejected(INVALID_STATUS, "Khách đang huỷ đơn này, chưa thể lấy hàng");
+        }
     }
 
     public enum NotFound { ALREADY_APPLIED, APPLY, IGNORE_STALE }
