@@ -3,7 +3,10 @@ package com.delivery.delivery.domain;
 import com.delivery.delivery.domain.CancellationPolicy.NotFound;
 import com.delivery.delivery.domain.CancellationPolicy.OrderCancel;
 import com.delivery.delivery.domain.CancellationPolicy.ShipperCancel;
+import com.delivery.delivery.domain.CancellationPolicy.CancelRequest;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
 
 import static com.delivery.delivery.domain.DeliveryStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +25,31 @@ class CancellationPolicyTest {
         assertEquals("busy", CancellationPolicy.shipperCancelReason("busy"));
         assertEquals("Shipper huỷ sau khi nhận", CancellationPolicy.shipperCancelReason(" "));
         assertEquals("Shipper huỷ sau khi nhận", CancellationPolicy.shipperCancelReason(null));
+    }
+
+    @Test
+    void orderCancelRequestIsHeldUntilPickupAndRefusedAfter() {
+        assertEquals(CancelRequest.NO_DELIVERY, CancellationPolicy.onOrderCancelRequest(false, null));
+        assertEquals(CancelRequest.ALREADY_CANCELLED, CancellationPolicy.onOrderCancelRequest(true, CANCELLED));
+        for (DeliveryStatus held : new DeliveryStatus[] {PENDING, FINDING_SHIPPER, WAIT_SHIPPER_CONFIRM,
+                SHIPPER_NOT_FOUND, ASSIGNED}) {
+            assertEquals(CancelRequest.HOLD, CancellationPolicy.onOrderCancelRequest(true, held));
+        }
+        for (DeliveryStatus late : new DeliveryStatus[] {PICKED_UP, DELIVERING, DELIVERED, RETURNING, RETURNED}) {
+            OfferDecisionRejected refused = assertThrows(OfferDecisionRejected.class,
+                    () -> CancellationPolicy.onOrderCancelRequest(true, late));
+            assertEquals(OfferDecisionRejected.Kind.INVALID_STATUS, refused.kind());
+        }
+    }
+
+    @Test
+    void pickupWaitsOnlyWhileTheCancelHoldIsLive() {
+        LocalDateTime now = LocalDateTime.of(2026, 10, 25, 12, 0);
+        CancellationPolicy.requirePickupNotHeldForCancel(null, now);
+        CancellationPolicy.requirePickupNotHeldForCancel(now, now);
+        CancellationPolicy.requirePickupNotHeldForCancel(now.minusSeconds(1), now);
+        assertEquals("Khách đang huỷ đơn này, chưa thể lấy hàng", assertThrows(OfferDecisionRejected.class,
+                () -> CancellationPolicy.requirePickupNotHeldForCancel(now.plusSeconds(1), now)).getMessage());
     }
 
     @Test

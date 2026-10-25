@@ -279,6 +279,22 @@ class DeliveryShipperOfferTest {
     }
 
     @Test
+    void pickupIsRefusedWhileOrderCancellationHoldsTheDelivery() {
+        Delivery delivery = waitingDelivery();
+        delivery.setShipperId(10L);
+        delivery.setStatus(DeliveryStatus.ASSIGNED);
+        delivery.setCancelHoldUntil(LocalDateTime.now().plusSeconds(60));
+        when(repository.findByIdForUpdate(1L)).thenReturn(Optional.of(delivery));
+
+        assertThatThrownBy(() -> service.updateDeliveryStatus(1L, DeliveryStatus.PICKED_UP, 10L, "SHIPPER"))
+                .isInstanceOf(InvalidStatusException.class)
+                .hasMessage("Khách đang huỷ đơn này, chưa thể lấy hàng");
+        assertThat(delivery.getStatus()).isEqualTo(DeliveryStatus.ASSIGNED);
+        verify(repository, never()).save(any());
+        verifyNoInteractions(eventPublisher, outboxService);
+    }
+
+    @Test
     void realShipperCannotUpdateASimulationDelivery() {
         Delivery delivery = waitingDelivery();
         delivery.setShipperId(10L);

@@ -722,6 +722,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             ShipperProgressPolicy.requireShipperTarget(requested);
             progress = ShipperProgressPolicy.decide(domainStatus(delivery), requested,
                     value -> DeliveryStatus.valueOf(value.name()).getDescription());
+            if (progress != ShipperProgressPolicy.Progress.REPLAY
+                    && requested == com.delivery.delivery.domain.DeliveryStatus.PICKED_UP) {
+                CancellationPolicy.requirePickupNotHeldForCancel(delivery.getCancelHoldUntil(), LocalDateTime.now());
+            }
         } catch (OfferDecisionRejected rejected) {
             throw offerDecisionFailure(rejected);
         }
